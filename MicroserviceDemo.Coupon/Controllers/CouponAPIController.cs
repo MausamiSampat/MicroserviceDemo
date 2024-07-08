@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MicroserviceDemo.CouponAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Coupon")]
     [ApiController]
     public class CouponAPIController : ControllerBase
     {
@@ -22,17 +22,20 @@ namespace MicroserviceDemo.CouponAPI.Controllers
         }
 
         [HttpGet]
-        public object Get()
+        public ResponseDto Get()
         {
             try
             {
                 IEnumerable<Coupon> objList = _db.Coupons.ToList();
-                return _mapper.Map<IEnumerable<CouponDto>>(objList);
+                _response.Result = _mapper.Map<IEnumerable<CouponDto>>(objList);
             }
             catch (Exception ex)
             {
+                _response.Message = ex.Message;
+                _response.IsSuccess = false;
+
             }
-            return null;
+            return _response;
         }
 
         [HttpGet]
@@ -94,7 +97,7 @@ namespace MicroserviceDemo.CouponAPI.Controllers
             {
                 Coupon coupon = _mapper.Map<Coupon>(couponDto);
                 _db.Coupons.Update(coupon);
-                _db.SaveChanges();
+                _db.SaveChanges();      
                 _response.Result = _mapper.Map<CouponDto>(coupon);
             }
             catch (Exception ex)
@@ -106,6 +109,7 @@ namespace MicroserviceDemo.CouponAPI.Controllers
         }
 
         [HttpDelete]
+        [Route("{couponId:int}")]
         public ResponseDto Delete(int couponId)
         {
             try
